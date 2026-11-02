@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: cobranca
+    schema: public
+    tables:
+      - name: clientes
+      - name: contratos
+      - name: custos_cobranca
+      - name: interacoes_cobranca
+      - name: metas_recuperacao
+      - name: pagamentos
+      - name: parcelas
