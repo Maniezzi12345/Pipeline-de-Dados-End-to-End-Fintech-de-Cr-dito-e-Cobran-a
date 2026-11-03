@@ -8,7 +8,7 @@ select
     nullif(trim(substr(initcap(trim(regexp_replace(trim(nome), '^(sr|sra|srta|dr|dra)\.?\s+', '', 'i'))),
         length(split_part(trim(regexp_replace(trim(nome), '^(sr|sra|srta|dr|dra)\.?\s+', '', 'i')), ' ', 1)) + 2)), '')  as sobrenome,
     initcap(trim(cidade))                                  as cidade,
-    trim(faixa_risco)                                      as faixa_risco,
+    trim(upper(faixa_risco))                                      as faixa_risco,
     cast(nullif(
         case
             when cast(renda_mensal as text) like '%,%'                    -- formato BR: R$ 5.962,34
