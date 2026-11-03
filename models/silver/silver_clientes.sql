@@ -3,10 +3,10 @@ select
     lower(trim(dominio_email))                             as dominio_email,
     split_part(lower(trim(dominio_email)), '.', 1)         as provedor_email,   -- terra.com.br -> terra
     upper(trim(uf))                                        as uf,
-    initcap(trim(nome))                                    as nome,
-    split_part(initcap(trim(nome)), ' ', 1)                as primeiro_nome,
-    nullif(trim(substr(initcap(trim(nome)),
-        length(split_part(trim(nome), ' ', 1)) + 2)), '')  as sobrenome,
+    initcap(trim(regexp_replace(trim(nome), '^(sr|sra|srta|dr|dra)\.?\s+', '', 'i')))  as nome,
+    split_part(initcap(trim(regexp_replace(trim(nome), '^(sr|sra|srta|dr|dra)\.?\s+', '', 'i'))), ' ', 1)  as primeiro_nome,
+    nullif(trim(substr(initcap(trim(regexp_replace(trim(nome), '^(sr|sra|srta|dr|dra)\.?\s+', '', 'i'))),
+        length(split_part(trim(regexp_replace(trim(nome), '^(sr|sra|srta|dr|dra)\.?\s+', '', 'i')), ' ', 1)) + 2)), '')  as sobrenome,
     initcap(trim(cidade))                                  as cidade,
     trim(faixa_risco)                                      as faixa_risco,
     cast(nullif(
