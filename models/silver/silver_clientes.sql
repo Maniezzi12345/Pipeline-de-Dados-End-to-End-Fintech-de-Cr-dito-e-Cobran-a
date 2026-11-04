@@ -6,8 +6,16 @@ select
     initcap(trim(regexp_replace(trim(nome), '^(sr|sra|srta|dr|dra)\.?\s+', '', 'i')))  as nome,
     split_part(initcap(trim(regexp_replace(trim(nome), '^(sr|sra|srta|dr|dra)\.?\s+', '', 'i'))), ' ', 1)  as primeiro_nome,
     nullif(trim(substr(initcap(trim(regexp_replace(trim(nome), '^(sr|sra|srta|dr|dra)\.?\s+', '', 'i'))),
-        length(split_part(trim(regexp_replace(trim(nome), '^(sr|sra|srta|dr|dra)\.?\s+', '', 'i')), ' ', 1)) + 2)), '')  as sobrenome,
-    initcap(trim(cidade))                                  as cidade,
+      length(split_part(trim(regexp_replace(trim(nome), '^(sr|sra|srta|dr|dra)\.?\s+', '', 'i')), ' ', 1)) + 2)), '')  as sobrenome,
+      case
+        when initcap(trim(cidade)) in ('Bh', 'B. Horizonte', 'Belo Horizonte') then 'Belo Horizonte'
+        when initcap(trim(cidade)) in ('J. De Fora', 'Juiz De Fora')            then 'Juiz de Fora'
+        when initcap(trim(cidade)) in ('Rio', 'Rio De Janeiro')                 then 'Rio de Janeiro'
+        when initcap(trim(cidade)) in ('S. Paulo', 'Sao Paulo', 'São Paulo')    then 'São Paulo'
+        when initcap(trim(cidade)) in ('Uberlandia', 'Uberlândia')              then 'Uberlândia'
+        when initcap(trim(cidade)) in ('Vitoria', 'Vitória')                    then 'Vitória'
+        else initcap(trim(cidade))
+    end   as cidade   ,
     trim(upper(faixa_risco))                                      as faixa_risco,
     cast(nullif(
         case
