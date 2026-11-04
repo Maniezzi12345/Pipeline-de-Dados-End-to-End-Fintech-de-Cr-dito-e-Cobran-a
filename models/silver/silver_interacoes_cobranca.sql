@@ -3,7 +3,13 @@ select
     cast(ic.cliente_id as integer)                  as cliente_id,
     cast(ic.contrato_id as integer)                 as contrato_id,
     cast(ic.parcela_id as integer)                  as parcela_id,
-    initcap(trim(ic.canal))                         as canal,
+        case
+        when initcap(trim(sic.canal)) in ('Whatsapp', 'Wpp')                        then 'Whatsapp'
+        when initcap(trim(sic.canal)) in ('Sms')                                    then 'Sms'
+        when initcap(trim(sic.canal)) in ('Email', 'E-Mail')                        then 'Email'
+        when initcap(trim(sic.canal)) in ('Ligacao', 'Ligação', 'Telefone')         then 'Ligacao'
+        else initcap(trim(sic.canal))
+    end as canal,
     upper(trim(ic.operadora))                       as operadora,
     ic.assunto,
     ic.resultado,
