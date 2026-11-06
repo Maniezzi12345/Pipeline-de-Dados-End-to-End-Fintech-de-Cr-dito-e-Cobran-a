@@ -1,17 +1,39 @@
+with parcelas as (
+    select distinct *
+    from {{ ref('silver_parcelas') }}
+),
+
+pagamentos_numerados as (
+    select
+        *,
+        row_number() over (partition by parcela_id order by pagamento_id) as ordem
+    from {{ ref('silver_pagamentos') }}
+),
+
+pagamentos as (
+    select *
+    from pagamentos_numerados
+    where ordem = 1
+)
+
 select
     p.parcela_id,
     p.contrato_id,
-    c.cliente_id,                                  
-    c.produto,                                     
+    c.cliente_id,
+    c.produto,
     p.numero_parcela,
     p.data_vencimento,
     p.valor_parcela,
     p.status_parcela,
     pg.data_pagamento,
+
     pg.valor_pago,
     pg.forma_pagamento
-from {{ ref('silver_parcelas') }} p
+
+from parcelas p
+
 join {{ ref('silver_contratos') }} c
-on p.contrato_id = c.contrato_id 
-left join {{ ref('silver_pagamentos')}} pg 
-on p.parcela_id = pg.parcela_id       
+    on p.contrato_id = c.contrato_id
+
+left join pagamentos pg
+    on p.parcela_id = pg.parcela_id
