@@ -40,3 +40,4 @@ join {{ ref('silver_contratos') }} c
 
 left join pagamentos pg
     on p.parcela_id = pg.parcela_id
+
