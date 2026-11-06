@@ -16,6 +16,9 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
+vars:
+  data_referencia: '2026-10-22'
+
 models:
   my_new_project:
     silver:
@@ -24,3 +27,9 @@ models:
     gold:
       +schema: gold
       +materialized: table
+      dimensoes:
+        +tags: ['gold', 'dimensao']
+      fatos:
+        +tags: ['gold', 'fato']
+      consumo:
+        +tags: ['gold', 'consumo']
