@@ -14,30 +14,41 @@ pagamentos as (
     select *
     from pagamentos_numerados
     where ordem = 1
+),
+
+base as (
+    select
+        p.parcela_id,
+        p.contrato_id,
+        c.cliente_id,
+        c.produto,
+        p.numero_parcela,
+        p.data_vencimento,
+        p.valor_parcela,
+        p.status_parcela,
+        pg.data_pagamento,
+        pg.valor_pago,
+        pg.forma_pagamento,
+        (p.status_parcela = 'Vencida') as em_atraso,
+        case
+            when p.status_parcela = 'Vencida'
+                then cast('{{ var("data_referencia") }}' as date) - p.data_vencimento
+        end as dias_em_atraso
+    from parcelas p
+    join {{ ref('silver_contratos') }} c
+        on p.contrato_id = c.contrato_id
+    left join pagamentos pg
+        on p.parcela_id = pg.parcela_id
 )
 
 select
-    p.parcela_id,
-    p.contrato_id,
-    c.cliente_id,
-    c.produto,
-    p.numero_parcela,
-    p.data_vencimento,
-    p.valor_parcela,
-    p.status_parcela,
-    pg.data_pagamento,
-    pg.valor_pago,
-    pg.forma_pagamento,
-    (p.status_parcela = 'Vencida') as em_atraso,
+    *,
     case
-        when p.status_parcela = 'Vencida' 
-             then cast ('{{ var("data_referencia")}}' as date ) - p.data_vencimento
-    end  as dias_em_atraso
-from parcelas p
-
-join {{ ref('silver_contratos') }} c
-    on p.contrato_id = c.contrato_id
-
-left join pagamentos pg
-    on p.parcela_id = pg.parcela_id
-
+        when dias_em_atraso is null then null
+        when dias_em_atraso <= 15   then '01-15 dias'
+        when dias_em_atraso <= 30   then '16-30 dias'
+        when dias_em_atraso <= 60   then '31-60 dias'
+        when dias_em_atraso <= 90   then '61-90 dias'
+        else '90+ dias'
+    end as faixa_atraso
+from base
