@@ -26,10 +26,13 @@ select
     p.valor_parcela,
     p.status_parcela,
     pg.data_pagamento,
-
     pg.valor_pago,
-    pg.forma_pagamento
-
+    pg.forma_pagamento,
+    (p.status_parcela = 'Vencida') as em_atraso,
+    case
+        when p.status_parcela = 'Vencida' 
+             then cast ('{{ var("data_referencia")}}' as date ) - p.data_vencimento
+    end  as dias_em_atraso
 from parcelas p
 
 join {{ ref('silver_contratos') }} c
