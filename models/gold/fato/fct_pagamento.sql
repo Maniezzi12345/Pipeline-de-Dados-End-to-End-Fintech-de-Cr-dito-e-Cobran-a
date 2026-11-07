@@ -1,34 +1,50 @@
-WITH nome AS (
-    SELECT
+with pagamentos as (
+    select
         pagamento_id,
         parcela_id,
         valor_pago,
-        dias_atraso,
         data_pagamento,
         forma_pagamento
-    FROM {{ ref('silver_pagamentos') }}
+    from {{ ref('silver_pagamentos') }}
 ),
 
-cte1 AS (
-    SELECT
+pagamentos_numerados as (
+    select
         *,
-        ROW_NUMBER() OVER (
-            PARTITION BY parcela_id
-            ORDER BY data_pagamento DESC
-        ) AS rn
-    FROM nome 
+        row_number() over (
+            partition by parcela_id
+            order by pagamento_id
+        ) as rn
+    from pagamentos
 ),
 
-cte2 as (
-    select 
-          parcela_id,
-          contato_id,
-          cliente_id,
-          data_vencimento
-    from {{ ref('fct_parcela')}}
+parcelas as (
+    select
+        parcela_id,
+        contrato_id,
+        cliente_id,
+        data_vencimento
+    from {{ ref('fct_parcela') }}
+),
+
+base as (
+    select
+        pg.pagamento_id,
+        pg.parcela_id,
+        p.contrato_id,
+        p.cliente_id,
+        p.data_vencimento,
+        pg.data_pagamento,
+        pg.valor_pago,
+        pg.forma_pagamento,
+        greatest(pg.data_pagamento - p.data_vencimento, 0) as dias_atraso
+    from pagamentos_numerados pg
+    join parcelas p
+        on pg.parcela_id = p.parcela_id
+    where pg.rn = 1
 )
 
-SELECT *
-FROM cte1 
-JOIN cte2 
-on cte1.parcela_id = cte2.parcela_id where rn = 1
+select
+    *,
+    (dias_atraso > 0) as recuperado
+from base
