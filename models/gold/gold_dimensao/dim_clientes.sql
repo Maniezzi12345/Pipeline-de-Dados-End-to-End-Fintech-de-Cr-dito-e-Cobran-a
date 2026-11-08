@@ -4,7 +4,6 @@ select
       sc.primeiro_nome,
       sc.cidade,
       sc.UF,
-      sc.provedor_email,
       sc.faixa_risco ,
       sc.renda_mensal ,
       sc.data_cadastro ,
