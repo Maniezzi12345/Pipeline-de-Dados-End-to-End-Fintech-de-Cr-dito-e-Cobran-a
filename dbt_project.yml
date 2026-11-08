@@ -33,3 +33,5 @@ models:
         +tags: ['gold', 'fato']
       consumo:
         +tags: ['gold', 'consumo']
+        +grants:
+          select: ['agente_cobranca']
