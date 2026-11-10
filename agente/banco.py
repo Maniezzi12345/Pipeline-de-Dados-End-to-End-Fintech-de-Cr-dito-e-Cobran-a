@@ -57,3 +57,29 @@ def buscar_contexto():
         order by posicao_fila
         limit 30
     """)
+
+
+DIMENSOES = {
+    "Faixa de risco": "c.faixa_risco",
+    "Ação sugerida": "f.acao_sugerida",
+    "Cidade": "c.cidade",
+    "UF": "c.uf",
+}
+
+MEDIDAS = {
+    "Valor em atraso (R$)": "sum(f.valor_em_atraso)",
+    "Nº de clientes": "count(*)",
+    "Dias médios de atraso": "round(avg(f.dias_atraso_mais_antigo), 1)",
+}
+
+
+def buscar_grafico(dimensao, medida):
+    coluna = DIMENSOES[dimensao]
+    calculo = MEDIDAS[medida]
+    return consultar(f"""
+        select {coluna} as categoria, {calculo} as valor
+        from analytics_gold.gold_fila_cobranca f
+        join analytics_gold.gold_cliente_360 c on f.cliente_id = c.cliente_id
+        group by {coluna}
+        order by valor desc
+    """)
